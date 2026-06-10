@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing Awareness Quiz - CodeAlpha</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .question {
+            background: #f8f9fa;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s;
+        }
+        
+        .question:hover {
+            transform: translateX(5px);
+        }
+        
+        .question-text {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+            font-size: 16px;
+        }
+        
+        .options {
+            list-style: none;
+        }
+        
+        .options li {
+            margin: 10px 0;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid #ddd;
+        }
+        
+        .options li:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+            border-color: #667eea;
+        }
+        
+        .options li.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .options li.correct {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        
+        .options li.wrong {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-reset {
+            background: #6c757d;
+        }
+        
+        .btn-reset:hover {
+            background: #5a6268;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .feedback {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .feedback.show {
+            display: block;
+            animation: slideIn 0.3s ease-in;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .progress {
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .question-text {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <span>🎣</span>
+            Phishing Awareness Quiz
+        </h1>
+        <div class="subtitle">Test your knowledge - Can you spot the phish? 🔐</div>
+        
+        <div class="progress" id="progress">📊 0/5 Questions Answered</div>
+        
+        <div id="quiz-container"></div>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="submitQuiz()">✅ Submit Answers</button>
+            <button class="btn btn-reset" onclick="resetQuiz()">🔄 Reset Quiz</button>
+        </div>
+        
+        <div id="score-display" class="score" style="display: none;"></div>
+        <div id="feedback" class="feedback"></div>
+    </div>
+    
+    <script>
+        const questions = [
+            {
+                text: "📧 You receive an email from 'Netflix' saying: 'Your payment failed! Click here to update billing info or your account will be closed in 24 hours.' What do you do?",
+                options: [
+                    "Click the link immediately to fix it",
+                    "Forward to friends to ask if it's real",
+                    "Log in directly to Netflix website (type URL yourself)",
+                    "Reply with your credit card info"
+                ],
+                correct: 2,
+                explanation: "❌ Never click links in emails! Always type the official website URL yourself or use a saved bookmark."
+            },
+            {
+                text: "🔍 The sender email address is: support@paypal-security-verify.com. This is:",
+                options: [
+                    "Legitimate PayPal email",
+                    "Phishing attempt - fake domain",
+                    "Internal PayPal security team",
+                    "Automated system message"
+                ],
+                correct: 1,
+                explanation: "⚠️ The real PayPal domain is 'paypal.com'. Anything like 'paypal-security.com' or 'paypal-verify.com' is fake!"
+            },
+            {
+                text: "🚨 An email has multiple spelling errors, uses 'Dear Customer' instead of your name, and creates urgency. This suggests:",
+                options: [
+                    "Legitimate business email",
+                    "Auto-generated newsletter",
+                    "Phishing attempt",
+                    "Spam only (not dangerous)"
+                ],
+                correct: 2,
+                explanation: "🎯 Phishing emails often have poor grammar, generic greetings, and create false urgency to trick you."
+            },
+            {
+                text: "🖱️ What does 'hover before clicking' mean for online safety?",
+                options: [
+                    "Wait 5 seconds before clicking any link",
+                    "Mouse over link to see actual destination URL",
+                    "Take a screenshot first",
+                    "Delete the email without clicking"
+                ],
+                correct: 1,
+                explanation: "✨ Hovering reveals the real URL. A link might say 'paypal.com' but actually go to 'fake-site.com'!"
+            },
+            {
+                text: "💼 You accidentally clicked a suspicious link at work. What's the FIRST thing you should do?",
+                options: [
+                    "Ignore it and hope nothing happens",
+                    "Change all your passwords",
+                    "Disconnect from network immediately",
+                    "Report to IT/Security team right away"
+                ],
+                correct: 3,
+                explanation: "🏢 Report to IT immediately! They can contain the threat, check for malware, and protect others. Quick reporting is heroic, not embarrassing!"
+            }
+        ];
+        
+        let userAnswers = new Array(questions.length).fill(null);
+        
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            container.innerHTML = '';
+            
+            questions.forEach((q, idx) => {
+                const questionDiv = document.createElement('div');
+                questionDiv.className = 'question';
+                questionDiv.innerHTML = `
+                    <div class="question-text">${idx + 1}. ${q.text}</div>
+                    <ul class="options" id="q${idx}">
+                        ${q.options.map((opt, optIdx) => `
+                            <li onclick="selectOption(${idx}, ${optIdx})" 
+                                class="${userAnswers[idx] === optIdx ? 'selected' : ''}">
+                                ${String.fromCharCode(65 + optIdx)}. ${opt}
+                            </li>
+                        `).join('')}
+                    </ul>
+                `;
+                container.appendChild(questionDiv);
+            });
+            
+            const answered = userAnswers.filter(a => a !== null).length;
+            document.getElementById('progress').innerHTML = `📊 ${answered}/${questions.length} Questions Answered`;
+        }
+        
+        function selectOption(qIdx, optIdx) {
+            userAnswers[qIdx] = optIdx;
+            renderQuiz();
+        }
+        
+        function submitQuiz() {
+            let score = 0;
+            
+            questions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.correct) {
+                    score++;
+                }
+            });
+            
+            const percentage = (score / questions.length) * 100;
+            const scoreDisplay = document.getElementById('score-display');
+            scoreDisplay.style.display = 'block';
+            
+            let message = "";
+            if (percentage === 100) {
+                message = "🎉 PERFECT! You're a phishing detection expert! 🏆";
+            } else if (percentage >= 80) {
+                message = "👍 Great job! You have strong security awareness!";
+            } else if (percentage >= 60) {
+                message = "📚 Good start! Review the training to improve further.";
+            } else {
+                message = "⚠️ Please review the training material carefully. Your security matters!";
+            }
+            
+            scoreDisplay.innerHTML = `
+                🎯 Your Score: ${score}/${questions.length} (${percentage}%)<br>
+                ${message}
+            `;
+            
+            // Show feedback for wrong answers
+            const feedbackDiv = document.getElementById('feedback');
+            const wrongAnswers = [];
+            questions.forEach((q, idx) => {
+                if (userAnswers[idx] !== q.correct) {
+                    wrongAnswers.push({
+                        number: idx + 1,
+                        explanation: q.explanation
+                    });
+                }
+            });
+            
+            if (wrongAnswers.length > 0) {
+                feedbackDiv.className = 'feedback show wrong';
+                feedbackDiv.innerHTML = `<strong>📚 Learn from these:</strong><br><br>
+                    ${wrongAnswers.map(w => 
+                        `❓ <strong>Question ${w.number}:</strong> ${w.explanation}<br><br>`
+                    ).join('')}
+                    <strong>💡 Tip: Review the training presentation for more details!</strong>`;
+            } else {
+                feedbackDiv.className = 'feedback show correct';
+                feedbackDiv.innerHTML = '🏆 EXCELLENT! You have mastered phishing awareness! Share this quiz with colleagues to help them stay safe too! 🛡️';
+            }
+            
+            // Scroll to results
+            scoreDisplay.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+        
+        function resetQuiz() {
+            userAnswers = new Array(questions.length).fill(null);
+            renderQuiz();
+            document.getElementById('score-display').style.display = 'none';
+            document.getElementById('feedback').className = 'feedback';
+        }
+        
+        renderQuiz();
+    </script>
+</body>
+</html>
